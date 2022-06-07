@@ -21,7 +21,7 @@ export class HomeComponent implements OnInit {
   _AuthUser!: Auth; 
   
   get getAuthHomeComp():Auth{
-    return this.authService.getAuthUser;  
+    return this.authService.getAuth;  
   }
 
 

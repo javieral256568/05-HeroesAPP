@@ -1,35 +1,70 @@
 import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivate, CanLoad, Route, RouterStateSnapshot, UrlSegment, UrlTree } from '@angular/router';
-import { Observable } from 'rxjs';
+import { ActivatedRouteSnapshot, CanActivate, CanLoad, Route, RouterStateSnapshot, UrlSegment, UrlTree, Router } from '@angular/router';
+import { Observable, tap } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class AuthGuard implements CanLoad {
+export class AuthGuard implements CanLoad, CanActivate {
 
-constructor(private authService:AuthService){
+constructor(private authService:AuthService,
+            private router: Router){
 }
 
-  /*canActivate(
+  canActivate(
     route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
-    return true;
-  }*/
+    state: RouterStateSnapshot): Observable<boolean> |  boolean  {
+
+
+      return this.authService.verificaAutenticacion()
+              .pipe(
+                  tap( estaAutenticado => {
+
+                        if(!estaAutenticado){
+                          this.router.navigate(['./auth/login']);  
+                        }
+
+                  } )
+                );
+
+      /*
+      if(this.authService.getAuth.id){
+        return true;    
+      }
+
+      console.log('Bloqueado por AuthGuard:canActivate  ', false);
+      return false;
+      */
+  }
   canLoad(
+
+    
+
     route: Route,
-    segments: UrlSegment[]): Observable<boolean> | Promise<boolean> | boolean  {
+    segments: UrlSegment[]): Observable<boolean>  | boolean  {
 
       
       console.log('AuthGuard:route', route);
       console.log('AuthGuard:segments', segments);
 
-      if(this.authService.getAuthUser.id){
+      return this.authService.verificaAutenticacion()
+            .pipe(
+                    tap( estaAutenticado => {
+
+                          if(!estaAutenticado){
+                            this.router.navigate(['./auth/login']);  
+                          }
+
+                    } )
+              );
+/* demostracion:
+      if(this.authService.getAuth.id){
         console.log('AuthGuard:canload', true);
         return true;
       }
 
-      console.log('AuthGuard:canload', false);
-    return false;
+      console.log('Bloqueado por AuthGuard:canload  ', false);
+    return false; */
   }
 }
